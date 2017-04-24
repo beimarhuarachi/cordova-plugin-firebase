@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.graphics.*;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.app.Notification;
@@ -45,14 +46,21 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         String text;
         String id;
         if (remoteMessage.getNotification() != null) {
-            title = remoteMessage.getNotification().getTitle();
-            text = remoteMessage.getNotification().getBody();
+            // title = remoteMessage.getNotification().getTitle();
+            // text = remoteMessage.getNotification().getBody();
+            title = "plugin change";
+            text = "text plugin";
             id = remoteMessage.getMessageId();
         } else {
-            title = remoteMessage.getData().get("title");
-            text = remoteMessage.getData().get("text");
+            // title = remoteMessage.getData().get("title");
+            // text = remoteMessage.getData().get("text");
+            title = "plugin change";
+            text = "text plugin";
             id = remoteMessage.getData().get("id");
         }
+
+        title = "Plugin beimar ultimo";
+        text = "Plugin beimar ultimo";
 
         if(TextUtils.isEmpty(id)){
             Random rand = new Random();
@@ -78,6 +86,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             bundle.putString(key, data.get(key));
         }
         if (showNotification) {
+            Log.d(TAG, "SHOW NOTIFICATION ACTIVADED.....");
             Intent intent = new Intent(this, OnNotificationOpenReceiver.class);
             intent.putExtras(bundle);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this, id.hashCode(), intent,
@@ -85,36 +94,57 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
             Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                    .setContentTitle(title)
-                    .setContentText(messageBody)
+                    .setContentTitle("[GITHUB]Message always shown")
+                    .setContentText("[GITHUB]Message body always shown")
                     .setStyle(new NotificationCompat.BigTextStyle().bigText(messageBody))
                     .setAutoCancel(true)
                     .setSound(defaultSoundUri)
                     .setContentIntent(pendingIntent);
 
+            // int resID = getResources().getIdentifier("ic_action_settings", "drawable", getPackageName());
             int resID = getResources().getIdentifier("notification_icon", "drawable", getPackageName());
-            if (resID != 0) {
-                notificationBuilder.setSmallIcon(resID);
-            } else {
-                notificationBuilder.setSmallIcon(getApplicationInfo().icon);
-            }
+            Log.d(TAG, "REST ID....." + resID);
+            // Bitmap largeIconBitmap = BitmapFactory.decodeResource(getResources(), getApplicationInfo().icon);
+            // Bitmap largeIconBitmap = BitmapFactory.decodeResource(getResources(), resID);
+            // notificationBuilder.setLargeIcon(largeIconBitmap);
+            notificationBuilder.setSmallIcon(resID);
+            
+            // if (resID != 0) {
+            //     Log.d(TAG, "HAY REST ID");
+            //     notificationBuilder.setSmallIcon(resID);
+            // } else {
+            //     Log.d(TAG, "NO HAY REST ID");
+            //     notificationBuilder.setSmallIcon(getApplicationInfo().icon);
+            // }
 
-            if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.MARSHMALLOW)
+            if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP)
             {
-				int accentID = getResources().getIdentifier("accent", "color", getPackageName());
-                notificationBuilder.setColor(getResources().getColor(accentID, null));				
+                Log.d(TAG, "INTENTANDO CAMBIAR DE COLOR");
+                int accentID = getResources().getIdentifier("accent", "color", getPackageName());
+                Log.d(TAG, "ACCENT ID : " + accentID);
+                notificationBuilder.setColor(getResources().getColor(accentID));
+
+                // int bigID = getResources().getIdentifier("notification_big", "drawable", getPackageName());
+                //     Bitmap largeIconBitmap = BitmapFactory.decodeResource(getResources(), bigID);
+                //     notificationBuilder.setLargeIcon(largeIconBitmap);               
             }
             
             Notification notification = notificationBuilder.build();
             if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP){
-				int iconID = android.R.id.icon;
-				int notiID = getResources().getIdentifier("notification_big", "drawable", getPackageName());
-                notification.contentView.setImageViewResource(iconID, notiID);
+    //             Log.d(TAG, "CAMBIANDO EL BIG ICON");
+
+                // int iconID = android.R.id.icon;
+    //             Log.d(TAG, "ICON ID : " + iconID);
+                // int notiID = getResources().getIdentifier("notification_big", "drawable", getPackageName());
+    //             Log.d(TAG, "NOTI ID : " + notiID);
+    //             notification.contentView.setImageViewResource(iconID, notiID);
+                 
             }
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
             notificationManager.notify(id.hashCode(), notification);
         } else {
+            Log.d(TAG, "NO ACTIVADO EL SHOW NOTIFICATION");
             bundle.putBoolean("tap", false);
             bundle.putString("title", title);
             bundle.putString("body", messageBody);
